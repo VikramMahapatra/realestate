@@ -1,5 +1,5 @@
 
-Real Estate CRM microservices scaffold
+Real Estate CRM microservices
 =====================================
 
 Services included: auth-service, property-service, brokerage-service, maintenance-service, support-service, feedback-service, inventory-service
