@@ -1,0 +1,42 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: brokerage-service
+  namespace: realestate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: brokerage-service
+  template:
+    metadata:
+      labels:
+        app: brokerage-service
+    spec:
+      containers:
+        - name: brokerage
+          image: ghcr.io/<org>/brokerage-service:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: postgresql+psycopg2://user:pass@postgres.realestate.svc.cluster.local:5432/appdb
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: JWT_SECRET
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: brokerage-service
+  namespace: realestate
+spec:
+  type: ClusterIP
+  selector:
+    app: brokerage-service
+  ports:
+    - port: 80
+      targetPort: 8000

@@ -1,0 +1,42 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-service
+  namespace: realestate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maintenance-service
+  template:
+    metadata:
+      labels:
+        app: maintenance-service
+    spec:
+      containers:
+        - name: maintenance
+          image: ghcr.io/<org>/maintenance-service:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: postgresql+psycopg2://user:pass@postgres.realestate.svc.cluster.local:5432/appdb
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: JWT_SECRET
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-service
+  namespace: realestate
+spec:
+  type: ClusterIP
+  selector:
+    app: maintenance-service
+  ports:
+    - port: 80
+      targetPort: 8000
