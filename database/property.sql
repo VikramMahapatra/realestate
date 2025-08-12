@@ -6,11 +6,16 @@
 -- flats
 -- flat_images
 -- amenities
+-- Maintaince charges
+-- Nearby facilities
+-- Finance_bank_loans
 -- property_amenities
+-- parking_slots
 -- flat_pricing_history
 -- flat_status_history
 -- property_documents
 -- unit_types
+-- security services
  
 --0. developers
 CREATE TABLE developers (
@@ -119,7 +124,7 @@ CREATE TABLE flat_images (
 
 CREATE TABLE amenities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL, -- swimming pool, gym, garden
+    name TEXT NOT NULL, -- swimming pool, gym, garden,yoga classes,Clubhouse events, festival celebrations, community halls.
     description TEXT
 );
 
@@ -178,3 +183,125 @@ CREATE TABLE unit_types (
     bathrooms INTEGER,
     base_price NUMERIC(15,2)
 );
+
+-- 11. Maintaince charges
+-- MOnthly Quaterly Yearly
+
+
+CREATE TABLE maintenance_charges (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    flat_id UUID REFERENCES flats(id) ON DELETE CASCADE,
+    charge_amount NUMERIC(12,2) NOT NULL,
+    frequency TEXT CHECK (frequency IN ('monthly', 'quarterly', 'yearly')),
+    due_date DATE,
+    status TEXT CHECK (status IN ('pending', 'paid', 'overdue')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 12. Nearby Facillities
+-- School ,hospitals ,Transport, EV charging station
+
+CREATE TABLE nearby_facilities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+    facility_type TEXT CHECK (facility_type IN ('school', 'hospital', 'transport')),
+    name TEXT NOT NULL,
+    distance_km NUMERIC(5,2),
+    contact_info TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- 13. Parking slots
+-- Covered open basement
+
+
+CREATE TABLE parking_slots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+    flat_id UUID REFERENCES flats(id) ON DELETE SET NULL,
+    slot_number TEXT NOT NULL,
+    slot_type TEXT CHECK (slot_type IN ('covered', 'open', 'basement')),
+    is_reserved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--14. Finance_bank_loans
+--bank name interest contact no
+
+CREATE TABLE finance_bank_loans (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+    bank_name TEXT NOT NULL,
+    interest_rate NUMERIC(5,2),
+    max_loan_amount NUMERIC(15,2),
+    tenure_years INT,
+    contact_info TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--14. Booking of flats
+--Reserverd confirmed cancelled
+
+
+CREATE TABLE bookings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    inquiry_id UUID REFERENCES inquiries(id) ON DELETE SET NULL,
+    flat_id UUID REFERENCES flats(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
+    booking_date DATE DEFAULT CURRENT_DATE,
+    booking_status TEXT CHECK (booking_status IN ('reserved', 'confirmed', 'cancelled')),
+    booking_amount NUMERIC(12,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--14. Inquiries of flats
+--New follow up cancelled
+
+CREATE TABLE inquiries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    flat_id UUID REFERENCES flats(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
+    inquiry_date DATE DEFAULT CURRENT_DATE,
+    inquiry_status TEXT CHECK (inquiry_status IN ('new', 'follow_up', 'converted', 'closed')),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--15. security_services
+--24/7 guards, CCTV monitoring, visitor management, intercom system.
+
+CREATE TABLE security_services (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    service_type TEXT NOT NULL, -- e.g. "24/7 Guards", "CCTV Monitoring"
+    description TEXT, -- Details about the service
+    vendor_name TEXT, -- Company providing the service
+    contact_info TEXT, -- Phone/email of vendor
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--15. utility_services
+--Water supply, power backup (DG sets, solar), gas pipeline, Wi-Fi.
+
+CREATE TABLE utility_services (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    utility_type TEXT NOT NULL, -- e.g., "Water Supply", "Power Backup", "Gas Pipeline", "Wi-Fi"
+    provider_name TEXT, -- Name of the service provider/vendor
+    billing_type TEXT, -- e.g., "Monthly", "Quarterly", "Prepaid", "Included in Maintenance"
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+
