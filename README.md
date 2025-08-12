@@ -90,3 +90,4 @@ GET	/search/properties	Search properties by location, price range, status
 GET	/search/flats	Search flats by location, price range, status
 GET	/public/properties	Public property listings (no auth, basic details)
 GET	/public/flats	Public flat listings
+#note-aap
